@@ -12,9 +12,17 @@ module Vagrant
       # on /etc/sudoers
       attr_accessor :sudo_wrapper
 
+      # A string that defines which backing store is used.
+      attr_accessor :backingstore
+
+      # Enable cloning.
+      attr_accessor :clone
+
       def initialize
         @customizations = []
         @sudo_wrapper   = UNSET_VALUE
+        @backingstore   = UNSET_VALUE
+        @clone          = UNSET_VALUE
       end
 
       # Customize the container by calling `lxc-start` with the given
@@ -34,6 +42,8 @@ module Vagrant
 
       def finalize!
         @sudo_wrapper = nil if @sudo_wrapper == UNSET_VALUE
+        @backingstore = nil if @backingstore == UNSET_VALUE
+        @clone        = false if @clone === UNSET_VALUE 
       end
 
       def validate(machine)
@@ -46,6 +56,10 @@ module Vagrant
           elsif ! hostpath.executable?
             errors << I18n.t('vagrant_lxc.sudo_wrapper_not_executable', path: hostpath.to_s)
           end
+        end
+
+        if !(@backingstore =~ /^(dir|btrfs|lvm|zfs|loop|overlayfs)$/) && @clone == true
+          errors << I18n.t('vagrant_lxc.errors.backingstore_invalid', backingstore: @backingstore)
         end
 
         { "lxc provider" => errors }
