@@ -8,6 +8,7 @@ module Vagrant
     class Driver
       class CLI
         attr_accessor :name
+        attr_accessor :backingstore
 
         class TransitionBlockNotProvided < RuntimeError; end
         class ShutdownNotSupported < RuntimeError; end
@@ -64,6 +65,14 @@ module Vagrant
           else
             raise
           end
+        end
+
+        def clone(orig)
+          run :clone,
+            '--keepname',                     # lxc-clone breaks vagrant's change_host_name cap
+            '--snapshot',                     # use snapshots
+            '--backingstore', @backingstore,  # specify backingstore from config
+            orig, @name
         end
 
         def destroy

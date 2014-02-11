@@ -21,6 +21,9 @@ en:
         Warning! The LXC provider doesn't support any of the Vagrant public / private
         network configurations (ex: `config.vm.network :private_network, ip: "some-ip"`).
         They will be silently ignored.
+    errors:
+      backingstore_invalid: |-
+        Invalid backingstore specified (%{backingstore}), must be dir, btrfs, lvm, zfs, loop or overlayfs.
 
   vagrant:
     commands:

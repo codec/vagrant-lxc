@@ -16,11 +16,19 @@ module Vagrant
       # to the corresponding machine name.
       attr_accessor :container_name
 
+      # A string that defines which backing store is used.
+      attr_accessor :backingstore
+
+      # Enable cloning.
+      attr_accessor :clone
+
       def initialize
         @customizations = []
         @sudo_wrapper   = UNSET_VALUE
         @use_machine_name = UNSET_VALUE
         @container_name = UNSET_VALUE
+        @backingstore   = UNSET_VALUE
+        @clone          = UNSET_VALUE
       end
 
       # Customize the container by calling `lxc-start` with the given
@@ -42,6 +50,8 @@ module Vagrant
         @sudo_wrapper = nil if @sudo_wrapper == UNSET_VALUE
         @use_machine_name = false if @use_machine_name == UNSET_VALUE
         @container_name = nil if @container_name == UNSET_VALUE
+        @backingstore = nil if @backingstore == UNSET_VALUE
+        @clone = false if @clone === UNSET_VALUE 
       end
 
       def validate(machine)
@@ -54,6 +64,10 @@ module Vagrant
           elsif ! hostpath.executable?
             errors << I18n.t('vagrant_lxc.sudo_wrapper_not_executable', path: hostpath.to_s)
           end
+        end
+
+        if !(@backingstore =~ /^(dir|btrfs|lvm|zfs|loop|overlayfs)$/) && @clone == true
+          errors << I18n.t('vagrant_lxc.errors.backingstore_invalid', backingstore: @backingstore)
         end
 
         { "lxc provider" => errors }

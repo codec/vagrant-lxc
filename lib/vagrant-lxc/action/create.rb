@@ -22,12 +22,20 @@ module Vagrant
               container_name << "_#{(Time.now.to_f * 1000.0).to_i}_#{rand(100000)}"
           end
 
-          env[:machine].provider.driver.create(
-            container_name,
-            env[:lxc_template_src],
-            env[:lxc_template_config],
-            env[:lxc_template_opts]
-          )
+          if env[:machine].provider_config.clone
+            env[:machine].provider.driver.clone(
+              container_name,
+              env[:machine].config.vm.box,
+              env[:machine].provider_config.backingstore
+            )
+          else
+            env[:machine].provider.driver.create(
+              container_name,
+              env[:lxc_template_src],
+              env[:lxc_template_config],
+              env[:lxc_template_opts]
+            )
+          end
 
           env[:machine].id = container_name
 
