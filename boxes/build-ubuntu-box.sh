@@ -148,6 +148,8 @@ mv ${WORKING_DIR}/${PKG} ${CWD}/output
 
 # Clean up after ourselves
 rm -rf ${WORKING_DIR}
-lxc-destroy -n ${RELEASE}-base
+if [ "${STORE}" = "dir" ]; then
+  lxc-destroy -n ${CONTAINER}
+fi
 
 echo "The base box was built successfully to ${CWD}/output/${PKG}"
