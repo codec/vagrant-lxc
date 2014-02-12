@@ -22,10 +22,12 @@ TODAY=$(date -u +"%Y-%m-%d")
 NOW=$(date -u)
 RELEASE=${1:-"raring"}
 ARCH=${2:-"amd64"}
-PKG=vagrant-lxc-${RELEASE}-${ARCH}-${TODAY}.box
+PKG=${3:-"vagrant-lxc-${RELEASE}-${ARCH}-${TODAY}.box"}
 WORKING_DIR=/tmp/vagrant-lxc-${RELEASE}
 VAGRANT_KEY="ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEA6NF8iallvQVp22WDkTkyrtvp9eWW6A8YVr+kz4TjGYe7gHzIw+niNltGEFHzD8+v1I2YJ6oXevct1YeS0o9HZyN1Q9qgCgzUFtdOKLv6IedplqoPkcmF0aYet2PkEDo3MlTBckFXPITAMzF8dJSIFo9D8HfdOV0IAdx4O7PtixWKn5y2hMNG0zQPyUecp4pzC6kivAIhyfHilFR61RGL+GPXQ2MWZWFYbAGjyiYJnAmCP3NOTd0jMZEnDkbUvxhMmBYSdETk1rRgm+R4LOzFUGaHqHDLKLX+FIPKcF96hrucXzcWyLbIbEgE98OHlnVYCzRdK8jlqm8tehUc9c9WhQ== vagrant insecure public key"
-ROOTFS=/var/lib/lxc/${RELEASE}-base/rootfs
+CONTAINER=${4:-"${RELEASE}-base"}
+STORE=${5:-"dir"}
+ROOTFS=/var/lib/lxc/${CONTAINER}/rootfs
 
 # Providing '1' will enable these tools
 CHEF=${CHEF:-0}
@@ -50,11 +52,11 @@ fi
 ##################################################################################
 # 1 - Create the base container
 
-if $(lxc-ls | grep -q "${RELEASE}-base"); then
-  echo "Base container already exists, please remove it with \`lxc-destroy -n ${RELEASE}-base\`!"
+if $(lxc-ls | grep -q "${CONTAINER}"); then
+  echo "Base container already exists, please remove it with \`lxc-destroy -n ${CONTAINER}\`!"
   exit 1
 else
-  lxc-create -n ${RELEASE}-base -t ubuntu -- --release ${RELEASE} --arch ${ARCH}
+  lxc-create -B ${STORE} -n ${CONTAINER} -t ubuntu -- --release ${RELEASE} --arch ${ARCH}
 fi
 
 # Fixes some networking issues
